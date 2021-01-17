@@ -27,14 +27,14 @@
 ![](Images/save.png)
 
 - Meshes with no animation will be stored as a transform
-- Meshes with animation in the LevelSequencer will be stored as keyfram values
+- Meshes with animation in the LevelSequencer will be stored as keyframe values
 
 ![](Images/json.png)
 
 ## Import a JSON file
 
 - Click `Load Layout File` and select your json file
-- Assets will be listed with checkbox
+- Assets will be listed with a checkbox in the GUI
 - Check or un-check the boxes one by one to load and unload individual objects
 
 ![](Images/half_loaded.png)
