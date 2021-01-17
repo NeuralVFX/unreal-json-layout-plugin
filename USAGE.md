@@ -18,7 +18,6 @@
 - In the `Content Manager`, navigate to `LayoutEditor Content`
 - Right click `JsonLayoutLoader` and click `Run Editor Utility Widget`
 
-![](Images/attributes_a.jpg)
 
 ## Export a JSON file
 
@@ -32,5 +31,6 @@
 - Click `Load Layout File` and select your json file
 - Assets will be listed with checkbox
 - Check or un-check the boxes one by one to load and unload individual objects
+![](Images/half_loaded.png)
 - Click `Load All Assets` or `Unload All Assets` to add or remove all objects at once
 
