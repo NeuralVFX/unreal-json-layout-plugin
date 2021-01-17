@@ -23,6 +23,9 @@
 
 - Select whichever static meshes you would like to export
 - Click `Save Layout File` and type your filename in
+
+![](Images/save.png)
+
 - Meshes with no animation will be stored as a transform
 - Meshes with animation in the LevelSequencer will be stored as keyfram values
 
@@ -31,6 +34,11 @@
 - Click `Load Layout File` and select your json file
 - Assets will be listed with checkbox
 - Check or un-check the boxes one by one to load and unload individual objects
+
 ![](Images/half_loaded.png)
+
 - Click `Load All Assets` or `Unload All Assets` to add or remove all objects at once
+
+![](Images/loaded.png)
+
 
