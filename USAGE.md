@@ -29,6 +29,8 @@
 - Meshes with no animation will be stored as a transform
 - Meshes with animation in the LevelSequencer will be stored as keyfram values
 
+![](Images/json.png)
+
 ## Import a JSON file
 
 - Click `Load Layout File` and select your json file
