@@ -1,5 +1,10 @@
 
 # Getting Started
+
+## Requirements:
+
+- Unreal Engine 4.20.3
+
 ## Project Setup
 
 - Make a C++ Unreal Project 
