@@ -3,7 +3,7 @@
 
 ## Requirements:
 
-- Unreal Engine 4.20.3
+- Unreal Engine 4.26
 
 ## Project Setup
 
