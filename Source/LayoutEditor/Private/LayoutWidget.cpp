@@ -1,15 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2020 NeuralVFX, Inc. All Rights Reserved.
+
 #include "LayoutWidget.h"
 #include "Engine/Selection.h"
 #include "Asset.h"
 #include "MeshAsset.h"
 #include "StaticMeshAsset.h"
 #include "AnimatedMeshAsset.h"
-
 #include "AssetBox.h"
 #include "Kismet/GameplayStatics.h"
 #include "LevelSequence.h"
-
 #include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
 #include "Components/PanelWidget.h"
 #include "Components/CanvasPanel.h"
@@ -26,20 +25,16 @@
 #include "DesktopPlatform/Public/IDesktopPlatform.h"
 #include "DesktopPlatform/Public/DesktopPlatformModule.h"
 #include "Toolkits/AssetEditorManager.h"
-#include "C:/Program Files/Epic Games/UE_4.26/Engine/Plugins/MovieScene/LevelSequenceEditor/Source/LevelSequenceEditor/Private/LevelSequenceEditorToolkit.h"
 #include "Toolkits/AssetEditorToolkit.h"
 #include "ISequencer.h"
 #include "Helpers.h"
-
-
-
-
 #include "JsonLayout.h"
 
 
 ULayoutWidget::ULayoutWidget()
 {
 }
+
 
 ULayoutWidget::~ULayoutWidget()
 {
@@ -50,61 +45,55 @@ void ULayoutWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
-	ALevelSequenceActor* CurrentSequencer = GetSequenceActor();
-	//UHelpers::UpdateSequencer(CurrentSequencer);
+	UCanvasPanel* Root = Cast<UCanvasPanel>(GetRootWidget());
 
-	UCanvasPanel* root = Cast<UCanvasPanel>(GetRootWidget());
-
-	// Setup Asset Box
+	// Setup scroll box to hold layout assets
 	UScrollBox* ScrollBox = NewObject<UScrollBox>();
 	VerticalBox = NewObject<UVerticalBox>();
 	ScrollBox->AddChild(VerticalBox);
 
-	UBorder *Border =NewObject<UBorder>();
+	UBorder* Border =NewObject<UBorder>();
 	Border->SetContent(ScrollBox);
 	Border->SetBrushColor(FLinearColor(.1, .1, .1));
-
-	UCanvasPanelSlot *UISlot = root->AddChildToCanvas(Border);
+	
+	// Add scroll box to GUI
+	UCanvasPanelSlot* UISlot = Root->AddChildToCanvas(Border);
 	UISlot->SetSize(FVector2D(550, 400));
 	UISlot->SetPosition(FVector2D(10, 30));
 
+	// Setup horizontal box to hold GUI buttons
 	UHorizontalBox * BotBox = NewObject<UHorizontalBox>();
-	UBorder *BotBorder = NewObject<UBorder>();
+	UBorder* BotBorder = NewObject<UBorder>();
 	BotBorder->SetContent(BotBox);
 	BotBorder->SetBrushColor(FLinearColor(.1, .1, .1));
 
-	UISlot = root->AddChildToCanvas(BotBorder);
+	// Add button area to GUI
+	UISlot = Root->AddChildToCanvas(BotBorder);
 	UISlot->SetSize(FVector2D(550, 30));
 	UISlot->SetPosition(FVector2D(10, 440));
 
+	// Setup buttons
 	UButton*  LoadAllButton = NewObject<UButton>();
 	LoadAllButton->OnClicked.AddDynamic(this, &ULayoutWidget::LoadAll);
-	UHorizontalBoxSlot *UISlot_Hor = BotBox->AddChildToHorizontalBox(LoadAllButton);
+	UHorizontalBoxSlot* UISlot_Hor = BotBox->AddChildToHorizontalBox(LoadAllButton);
 	UISlot_Hor->SetPadding(FMargin(13, 2));
-	//UISlot = root->AddChildToCanvas(Cast<UWidget>(LoadAllButton));
-	//UISlot->SetPosition(FVector2D(350, 450));
 
 	UButton* UnLoadAllButton = NewObject<UButton>();
 	UnLoadAllButton->OnClicked.AddDynamic(this, &ULayoutWidget::UnLoadAll);
 	UISlot_Hor = BotBox->AddChildToHorizontalBox(UnLoadAllButton);
 	UISlot_Hor->SetPadding(FMargin(13, 2));
-	//UISlot = root->AddChildToCanvas(Cast<UWidget>(UnLoadAllButton));
-	//UISlot->SetPosition(FVector2D(100, 450));
 
 	UButton* LoadJsonButton = NewObject<UButton>();
 	LoadJsonButton->OnClicked.AddDynamic(this, &ULayoutWidget::LoadJson);
 	UISlot_Hor = BotBox->AddChildToHorizontalBox(LoadJsonButton);
 	UISlot_Hor->SetPadding(FMargin(13, 2));
-	//UISlot = root->AddChildToCanvas(Cast<UWidget>(LoadJsonButton));
-	//UISlot->SetPosition(FVector2D(550, 450));
 
 	UButton* SaveJsonButton = NewObject<UButton>();
 	SaveJsonButton->OnClicked.AddDynamic(this, &ULayoutWidget::SaveJson);
 	UISlot_Hor = BotBox->AddChildToHorizontalBox(SaveJsonButton);
 	UISlot_Hor->SetPadding(FMargin(13, 2));
-	//UISlot = root->AddChildToCanvas(Cast<UWidget>(SaveJsonButton));
-	//UISlot->SetPosition(FVector2D(650, 450));
 
+	// Setup text
 	FLinearColor Black = FLinearColor(0, 0,0 );
 	FLinearColor White = FLinearColor(1, 1, 1);
 
@@ -117,20 +106,22 @@ void ULayoutWidget::NativePreConstruct()
 	UTextBlock* LoadJsonText = UHelpers::MakeTextBlock("Load Layout File", 10, Black);
 	UTextBlock* SaveJsonText = UHelpers::MakeTextBlock("Save Layout File", 10, Black);
 
+	// Set all button text
 	LoadAllButton->SetContent(LoadAllText);
 	UnLoadAllButton->SetContent(UnLoadAllText);
 	SaveJsonButton->SetContent(SaveJsonText);
 	LoadJsonButton->SetContent(LoadJsonText);
 
-	UHorizontalBox * TopBox=  NewObject<UHorizontalBox>();
+	// Setup column label arrea
+	UHorizontalBox* TopBox=  NewObject<UHorizontalBox>();
 
-
-	USizeBox *Size = NewObject<USizeBox>();
+	USizeBox* Size = NewObject<USizeBox>();
 	Size->SetWidthOverride(70);
 	Size->SetContent(IsLoadedText);
 	UISlot_Hor = TopBox->AddChildToHorizontalBox(Size);
 	UISlot_Hor->SetPadding(FMargin(15, 0));
 
+	// Add text to column label area
 	Size = NewObject<USizeBox>();
 	Size->SetWidthOverride(150);
 	Size->SetContent(ContentNameText);
@@ -146,28 +137,24 @@ void ULayoutWidget::NativePreConstruct()
 	Size->SetContent(ObjectTypeText);
 	UISlot_Hor = TopBox->AddChildToHorizontalBox(Size);
 
-	UBorder *TopBorder = NewObject<UBorder>();
+	UBorder* TopBorder = NewObject<UBorder>();
 	TopBorder->SetContent(TopBox);
 	TopBorder->SetBrushColor(FLinearColor(.1, .1, .1));
 
-
-	UISlot = root->AddChildToCanvas(TopBorder);
+	// Add column label area to GUI
+	UISlot = Root->AddChildToCanvas(TopBorder);
 	UISlot->SetSize(FVector2D(550, 20));
 	UISlot->SetPosition(FVector2D(10, 5));
-
-
-
 }
-
 
 
 void ULayoutWidget::SaveJson()
 {
-	
+	// Get all secected actors
 	TArray<AStaticMeshActor*> ActorArray;
-
 	USelection* SelectedActors = GEditor->GetSelectedActors();
-	TArray<ULevel*> UniqueLevels;
+
+	// Loop through actors, add to array if StaticMeshActor
 	for (FSelectionIterator Iter(*SelectedActors); Iter; ++Iter)
 	{
 		AActor* Actor = Cast<AActor>(*Iter);
@@ -181,7 +168,7 @@ void ULayoutWidget::SaveJson()
 		}
 	}
 	
-
+	// If actors found, write JSON file
 	if (ActorArray.Num() > 0)
 	{
 		FString OutFile = SaveJsonFile();
@@ -192,80 +179,77 @@ void ULayoutWidget::SaveJson()
 }
 
 
-
-
-
 void ULayoutWidget::LoadJson()
 {
-
+	// Clear assets from GUI
 	VerticalBox->ClearChildren();
 	AssetBoxArray.Empty();
-	AssetArray.Empty();
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALevelSequenceActor::StaticClass(), FoundActors);
-	ALevelSequenceActor* CurrentSequencer = Cast<ALevelSequenceActor>(FoundActors[0]);
-	
-	
 
+	// Get Sequencer
+	ALevelSequenceActor* CurrentSequencer = GetSequenceActor();
+	
+	// Open JSON file
 	FString FileName = LoadJsonFile();
-	UE_LOG(LogTemp, Warning, TEXT("File %s"), *FileName);
-
 	FStaticMeshArray Objects =  UJsonLayout::ReadLayoutData(FileName);
 
+	// Loop through StaticMesh array, create asset, add to GUI
 	for  (FStaticMeshObject Struct:Objects.StaticMeshes)
 	{ 
+		// Get details from struct
 		FString NewSceneName = Struct.SceneName;
 		FString NewContentName = Struct.ContentName;
 		FMatrix Matrix = Struct.Matrix;
 		FTransform NewTransform(Matrix);
 
-		UStaticMeshAsset *AssetB = NewObject<UStaticMeshAsset>();
-		AssetB->Init(CurrentSequencer, NewSceneName, NewContentName, NewTransform);
-		AssetB->AddToRoot();
+		// Create asset
+		UStaticMeshAsset* NewAsset = NewObject<UStaticMeshAsset>();
+		NewAsset->Init(CurrentSequencer, NewSceneName, NewContentName, NewTransform);
+		NewAsset->AddToRoot();
 
-		UAssetBox * AssetBoxA = NewObject<UAssetBox>();
-		AssetBoxA->Init(Cast<UAsset>(AssetB));
+		// Create asset box for GUI
+		UAssetBox* AssetBoxA = NewObject<UAssetBox>();
+		AssetBoxA->Init(Cast<UAsset>(NewAsset));
 
+		// Add asset box to GUI
 		VerticalBox->AddChildToVerticalBox(AssetBoxA);
-
-		AssetArray.Add(AssetB);
 		AssetBoxArray.Add(AssetBoxA);
 	}
 
 
-
+	// Loop through animated StaticMesh array, create asset, add to GUI
 	for (FAnimatedStaticMeshObject Struct : Objects.AnimatedStaticMeshes)
 	{
+		// Get details from struct
 		FString NewSceneName = Struct.SceneName;
 		FString NewContentName = Struct.ContentName;
 
-		UAnimatedMeshAsset *AssetB = NewObject<UAnimatedMeshAsset>();
-		AssetB->Init(CurrentSequencer, NewSceneName, NewContentName, Struct);
-		AssetB->AddToRoot();
+		// Create asset
+		UAnimatedMeshAsset* NewAsset = NewObject<UAnimatedMeshAsset>();
+		NewAsset->Init(CurrentSequencer, NewSceneName, NewContentName, Struct);
+		NewAsset->AddToRoot();
 
-		UAssetBox * AssetBoxA = NewObject<UAssetBox>();
-		AssetBoxA->Init(Cast<UAsset>(AssetB));
+		// Create asset box for GUI
+		UAssetBox* AssetBoxA = NewObject<UAssetBox>();
+		AssetBoxA->Init(Cast<UAsset>(NewAsset));
 
+		// Add asset box to GUI
 		VerticalBox->AddChildToVerticalBox(AssetBoxA);
-
-		AssetArray.Add(AssetB);
 		AssetBoxArray.Add(AssetBoxA);
 	}
-
 }
-
 
 
 
 void ULayoutWidget::LoadAll()
 {
-
-	for (UAssetBox *AssetBoxA : AssetBoxArray)
+	// Attempt to load each asset, update GUI
+	for (UAssetBox* AssetBoxA : AssetBoxArray)
 	{
 		AssetBoxA->Asset->Load();
 		AssetBoxA->EvaluateState();
 	}
 
+	// Update sequecer GUI
 	ALevelSequenceActor* CurrentSequencer = GetSequenceActor();
 	UHelpers::UpdateSequencer(CurrentSequencer);
 }
@@ -273,13 +257,14 @@ void ULayoutWidget::LoadAll()
 
 void ULayoutWidget::UnLoadAll()
 {
-
-	for (UAssetBox *AssetBoxA : AssetBoxArray)
+	// Attempt to unload each asset
+	for (UAssetBox* AssetBoxA : AssetBoxArray)
 	{
 		AssetBoxA->Asset->Unload();
 		AssetBoxA->EvaluateState();
 	}
 
+	// Update sequecer GUI
 	ALevelSequenceActor* CurrentSequencer = GetSequenceActor();
 	UHelpers::UpdateSequencer(CurrentSequencer);
 }
@@ -287,12 +272,14 @@ void ULayoutWidget::UnLoadAll()
 
 FString ULayoutWidget::LoadJsonFile()
 {
-
 	TArray<FString> OutFileNames;
 	FString OutName;
 
+	// Setup GUI related arguments
 	const void* ParentWindowPtr = UHelpers::GetParentWindow();
 	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+
+	// Let user select file from browser GUI
 	if (DesktopPlatform)
 	{
 		uint32 SelectionFlag = 1; 
@@ -304,24 +291,29 @@ FString ULayoutWidget::LoadJsonFile()
 										OutFileNames);
 	}
 	
+	// Fetch output
 	if (OutFileNames.Num() > 0)
 	{
 		OutName = OutFileNames.Pop();
 	}
+
 	return OutName;
 }
+
 
 FString ULayoutWidget::SaveJsonFile()
 {
 	TArray<FString> OutFileNames;
 	FString OutName;
 
+	// Setup GUI related arguments
 	const void* ParentWindowPtr = UHelpers::GetParentWindow();
 	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+
+	// Let user create or select file from browser GUI
 	if (DesktopPlatform)
 	{
 		uint32 SelectionFlag = 1;
-		//
 		DesktopPlatform->SaveFileDialog(ParentWindowPtr,
 										FString("Save Json"),
 										FPaths::ProjectSavedDir() / "LayoutJson",
@@ -331,20 +323,24 @@ FString ULayoutWidget::SaveJsonFile()
 										OutFileNames);
 	}
 
+	// Fetch output
 	if (OutFileNames.Num() > 0)
 	{
 		OutName = OutFileNames.Pop();
 	}
+
 	return OutName;
 }
 
 
 ALevelSequenceActor* ULayoutWidget::GetSequenceActor()
 {
+	// Get list of all LevelSequenceActors
 	ALevelSequenceActor* CurrentSequencer = nullptr;
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALevelSequenceActor::StaticClass(), FoundActors);
 
+	// Return first one found
 	if (FoundActors.Num() > 0)
 	{
 		CurrentSequencer = Cast<ALevelSequenceActor>(FoundActors[0]);

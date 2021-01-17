@@ -1,14 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2020 NeuralVFX, Inc. All Rights Reserved.
 
-#include "Kismet/KismetSystemLibrary.h"
 #include "JsonLayout.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "JsonUtilities.h"
 #include "Helpers.h"
 #include "Serialization/JsonReader.h"
 #include "UObject/UObjectBaseUtility.h"
 #include "Engine/StaticMeshActor.h"
-#include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Components/StaticMeshComponent.h"
 #include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
 #include "Sections/MovieScene3DTransformSection.h"
 #include "Tracks/MovieScene3DTransformTrack.h"
@@ -16,18 +16,17 @@
 #include "Channels/MovieSceneChannelProxy.h"
 
 
-
-static const FString WritePath(FPaths::ProjectSavedDir() / "LayoutJson");
-
-
-bool UJsonLayout::WriteLayoutData(FString LayoutName, TArray<AStaticMeshActor*> ActorArray, ALevelSequenceActor * Sequencer)
+bool UJsonLayout::WriteLayoutData(FString LayoutName, TArray<AStaticMeshActor*> ActorArray, ALevelSequenceActor* Sequencer)
 {
 	JsonObjectPtr JsonRootObject = MakeShareable(new FJsonObject);
 	FStaticMeshArray MeshArray;
 
+	// Loop through actors and create structs for JSON
 	for (AStaticMeshActor* Actor : ActorArray)
 	{
 		FGuid Guid = UHelpers::GetGuidFromSequencer(Sequencer, UKismetSystemLibrary::GetDisplayName(Actor));
+
+		// Check if actor has animation and record data accordingly
 		if (Guid.IsValid())
 		{
 			FAnimatedStaticMeshObject AnimatedMesh = MakeAnimatedStaticMesh(Sequencer, Actor, Guid);
@@ -39,57 +38,72 @@ bool UJsonLayout::WriteLayoutData(FString LayoutName, TArray<AStaticMeshActor*> 
 			FStaticMeshObject Mesh = MakeStaticMesh(Actor);
 			MeshArray.StaticMeshes.Add(Mesh);
 		}
-		
 	}
 
+	// Convert struct to string
 	FString JSONPayload;
 	FJsonObjectConverter::UStructToJsonObjectString(MeshArray, JSONPayload, 0, 0);
-	return FFileHelper::SaveStringToFile(JSONPayload, * LayoutName);
+
+	// Save to JSON file
+	return FFileHelper::SaveStringToFile(JSONPayload, *LayoutName);
 }
 
 
 FStaticMeshArray UJsonLayout::ReadLayoutData(FString LayoutName)
 {
+	// Open JSON as string
 	FString LayoutString;
 	FFileHelper::LoadFileToString(LayoutString, *LayoutName);
 
+	// Convert string to struct
 	FStaticMeshArray StaticMeshes;
 	FJsonObjectConverter::JsonObjectStringToUStruct(LayoutString, &StaticMeshes,0,0);
-	return StaticMeshes;
 
+	return StaticMeshes;
 }
+
 
 FStaticMeshObject  UJsonLayout::MakeStaticMesh(AStaticMeshActor* Actor)
 {
+	// Extract scene name and content name
 	FStaticMeshObject Mesh;
 	Mesh.ContentName = Cast<AStaticMeshActor>(Actor)->GetStaticMeshComponent()->GetStaticMesh()->GetPathName();
 	Mesh.SceneName = UKismetSystemLibrary::GetDisplayName(Actor);
+
+	// Extract transformation matrix
 	FMatrix Matrix = Actor->GetTransform().ToMatrixWithScale();
 	Mesh.Matrix = Matrix;
+
 	return Mesh;
 }
 
-FAnimatedStaticMeshObject  UJsonLayout::MakeAnimatedStaticMesh(ALevelSequenceActor * Sequencer, AStaticMeshActor* Actor, FGuid Guid)
+
+FAnimatedStaticMeshObject  UJsonLayout::MakeAnimatedStaticMesh(ALevelSequenceActor* Sequencer, AStaticMeshActor* Actor, FGuid Guid)
 {
+	// Extract scene name and content name
 	FAnimatedStaticMeshObject Mesh;
 	Mesh.ContentName = Cast<AStaticMeshActor>(Actor)->GetStaticMeshComponent()->GetStaticMesh()->GetPathName();
 	Mesh.SceneName = UKismetSystemLibrary::GetDisplayName(Actor);
 
 
-
+	// Get transformation track from sequencer
 	UMovieScene3DTransformSection* CurrentTranSection = UHelpers::GetTransformSection( Sequencer, Guid);
 
-
+	// Record values from sequencer into struct
 	if (CurrentTranSection)
 	{ 
+		// Get start and end frame
 		FFrameNumber StartFrame = UHelpers::GetFrameNumberTick(Sequencer, CurrentTranSection->GetInclusiveStartFrame().Value, true);
 		FFrameNumber EndFrame = UHelpers::GetFrameNumberTick(Sequencer, CurrentTranSection->GetExclusiveEndFrame().Value, true);
 
+		// Get transform channels
 		const FMovieSceneChannelProxy& channelProxy = CurrentTranSection->GetChannelProxy();
 		auto ChannelArray = channelProxy.GetChannels<FMovieSceneFloatChannel>();
 
 		TArray<FMovieSceneFloatValue> KeyArray;
 		TArray<FFrameNumber> FrameArray;
+
+		// Loop through frames and set key values in struct
 		for (int i = StartFrame.Value; i < EndFrame.Value; i++)
 		{
 			FFrameNumber Frame = UHelpers::GetFrameNumberTick(Sequencer, i, false);

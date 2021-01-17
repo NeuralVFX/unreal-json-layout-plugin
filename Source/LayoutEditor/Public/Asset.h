@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2020 NeuralVFX, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -6,9 +6,14 @@
 #include "UObject/NoExportTypes.h"
 #include "Asset.generated.h"
 
-/**
- * 
- */
+/** 
+* Abstract Class Representing Assets Loaded From Json 
+*
+* Mangages loading and unloading from scene
+* Uses sequencer to keep track of state
+*
+* Functions "Load" "Unload" and "IsLoaded"; can be overridden to make any Class type
+*/
 UCLASS(abstract)
 class LAYOUTEDITOR_API UAsset : public UObject
 {
@@ -19,31 +24,60 @@ public:
 	UAsset();
 	~UAsset();
 
+	/** Sequence actor to load asset into */
 	UPROPERTY(EditAnywhere, Category = "Sequencer")
 	class ALevelSequenceActor * Sequencer;
 
+	/** World object of scene */
 	class UWorld * World;
 
+	/** Name asset will be given in scenefile */
 	FString SceneName;
-	FString ContentName;
-	FString CutName;
-	FString Type;
 
-private:
+	/** Content library path for asset */
+	FString ContentName;
+
+	/** Display friendly name for content library path */
+	FString CutName;
+
+	/** Asset type ie:(StaticMesh, Animated StaticMesh, Camera) */
+	FString Type;
 
 public:
 
-
+	/**
+	 * Initiate the variables of the asset.
+	 * @param CurrentSequencer - Sequence Actor which will load this asset.
+	 * @param NewSceneName - Scene name of the asset.
+	 */
 	virtual void Init(ALevelSequenceActor *CurrentSequencer, FString NewSceneName);
 
+	/**
+	 * Lookup the Actor in the scene associated with this asset.
+	 * @return The Actor associated with this asset.
+	 */
 	class AActor * GetActor();
 
+	/**
+	 * Lookup the FGuid in the LevelSequence associated with this asset.
+	 * @return The FGuid associated with this asset.
+	 */
 	FGuid GetGuid();
 
-	virtual bool Load();
+	/**
+	 * Create the Actor associated with this asset, and add to the sequencer.
+	 */
+	virtual void Load();
 
-	virtual bool Unload();
+	/**
+	 * Delete the Actor associated with this asset, and remove from the sequencer.
+	 */
+	virtual void Unload();
 
+	/**
+	 * Delete the Actor associated with this asset, and remove from the sequencer.
+	* @return Whether this asset is loaded in the scene and sequencer.
+	 */
 	virtual bool IsLoaded();
 
 };
