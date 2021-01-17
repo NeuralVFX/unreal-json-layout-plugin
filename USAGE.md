@@ -10,13 +10,13 @@
 - From `Edit->Plugins`, locate the `Installed` or 'Other' Tab
 - Find  `LayoutEditor` and click `Enable`
 
-![](Images/plugin.png)
+![](Images/plugin_a.png)
 ## Scene Setup
 
 - Make sure that your level has a `LevelSequenceActor` added to it
-- Also make sure that you LevelSequenceActor has a LevelSequence selected
-- In the Content Manager, navigate to LayoutEditor Content
-- Right click JsonLayoutLoader and click `Run Editor Utility Widget`
+- Also make sure that your `LevelSequenceActor` has a `LevelSequence` selected
+- In the `Content Manager`, navigate to `LayoutEditor Content`
+- Right click `JsonLayoutLoader` and click `Run Editor Utility Widget`
 
 ![](Images/attributes_a.jpg)
 
