@@ -10,7 +10,7 @@
 - From `Edit->Plugins`, locate the `Installed` or 'Other' Tab
 - Find  `LayoutEditor` and click `Enable`
 
-![](Images/plugin_a.jpg)
+![](Images/plugin.png)
 ## Scene Setup
 
 - Make sure that your level has a `LevelSequenceActor` added to it
