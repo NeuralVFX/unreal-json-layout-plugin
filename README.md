@@ -1,4 +1,4 @@
-![](Images/jenga_a.gif)
+![](Images/jenga_b.gif)
 # Unreal-Json-Layout-Plugin
 
 This plugin provides a GUI to manage the saving and loading of scene layouts.
