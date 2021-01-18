@@ -64,7 +64,7 @@ void UAnimatedMeshAsset::Load()
 
 			NewTrack->AddSection(*Cast<UMovieScene3DTransformSection>(Section));
 
-			// Fetch keyfram object from section
+			// Fetch keyframe object from section
 			const FMovieSceneChannelProxy& channelProxy = Section->GetChannelProxy();
 			auto ChannelArray = channelProxy.GetChannels<FMovieSceneFloatChannel>();
 
