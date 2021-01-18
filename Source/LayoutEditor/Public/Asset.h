@@ -76,7 +76,7 @@ public:
 
 	/**
 	 * Check sequencer to see if the asset is currently loaded in the scene.
-	* @return Whether this asset is loaded in the scene and sequencer.
+	 * @return Whether this asset is loaded in the scene and sequencer.
 	 */
 	virtual bool IsLoaded();
 
