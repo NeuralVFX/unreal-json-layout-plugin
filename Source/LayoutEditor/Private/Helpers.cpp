@@ -41,9 +41,10 @@ UTextBlock* UHelpers::MakeTextBlock(FString Text, int Size, FLinearColor Color)
 	// Create font object
 	FString Roboto = FPaths::ProjectPluginsDir() + "/LayoutEditor/Resources/Roboto-Medium.ttf";
 	TSharedPtr<const FCompositeFont> MyInCompositeFont(new FCompositeFont(TEXT("MyRobotoFont"),
-														Roboto,
-														EFontHinting::Default,
-														EFontLoadingPolicy::LazyLoad));
+		Roboto,
+		EFontHinting::Default,
+		EFontLoadingPolicy::LazyLoad));
+
 	// Set font
 	FSlateFontInfo font(MyInCompositeFont, Size);
 	ObjectTypeText->SetFont(font);
