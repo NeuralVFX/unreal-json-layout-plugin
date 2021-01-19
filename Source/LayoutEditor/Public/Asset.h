@@ -75,8 +75,8 @@ public:
 	virtual void Unload();
 
 	/**
-	 * Delete the Actor associated with this asset, and remove from the sequencer.
-	* @return Whether this asset is loaded in the scene and sequencer.
+	 * Check sequencer to see if the asset is currently loaded in the scene.
+	 * @return Whether this asset is loaded in the scene and sequencer.
 	 */
 	virtual bool IsLoaded();
 
