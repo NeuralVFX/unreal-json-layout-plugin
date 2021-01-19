@@ -283,12 +283,13 @@ FString ULayoutWidget::LoadJsonFile()
 	if (DesktopPlatform)
 	{
 		uint32 SelectionFlag = 1; 
-		DesktopPlatform->OpenFileDialog(ParentWindowPtr, FString("Load Json"),
-										FPaths::ProjectSavedDir() / "LayoutJson",
-										FString(""),
-										TEXT("(Layout Files)|*.json;)"),
-										SelectionFlag,
-										OutFileNames);
+		DesktopPlatform->OpenFileDialog(ParentWindowPtr,
+			FString("Load Json"),
+			FPaths::ProjectSavedDir() / "LayoutJson",
+			FString(""),
+			TEXT("(Layout Files)|*.json;)"),
+			SelectionFlag,
+			OutFileNames);
 	}
 	
 	// Fetch output
@@ -315,12 +316,12 @@ FString ULayoutWidget::SaveJsonFile()
 	{
 		uint32 SelectionFlag = 1;
 		DesktopPlatform->SaveFileDialog(ParentWindowPtr,
-										FString("Save Json"),
-										FPaths::ProjectSavedDir() / "LayoutJson",
-										FString(""),
-										TEXT("(Layout Files)|*.json;)"),
-										SelectionFlag,
-										OutFileNames);
+			FString("Save Json"),
+			FPaths::ProjectSavedDir() / "LayoutJson",
+			FString(""),
+			TEXT("(Layout Files)|*.json;)"),
+			SelectionFlag,
+			OutFileNames);
 	}
 
 	// Fetch output
@@ -338,7 +339,9 @@ ALevelSequenceActor* ULayoutWidget::GetSequenceActor()
 	// Get list of all LevelSequenceActors
 	ALevelSequenceActor* CurrentSequencer = nullptr;
 	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ALevelSequenceActor::StaticClass(), FoundActors);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(),
+		ALevelSequenceActor::StaticClass(),
+		FoundActors);
 
 	// Return first one found
 	if (FoundActors.Num() > 0)
