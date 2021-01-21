@@ -39,7 +39,7 @@ UTextBlock* UHelpers::MakeTextBlock(FString Text, int Size, FLinearColor Color)
 	ObjectTypeText->SetText(FText::FromString(Text));
 
 	// Create font object
-	FString Roboto = FPaths::ProjectPluginsDir() + "/LayoutEditor/Resources/Roboto-Medium.ttf";
+	FString Roboto = FPaths::ProjectPluginsDir() + "/unreal-json-layout-plugin/Resources/Roboto-Medium.ttf";
 	TSharedPtr<const FCompositeFont> MyInCompositeFont(new FCompositeFont(TEXT("MyRobotoFont"),
 		Roboto,
 		EFontHinting::Default,

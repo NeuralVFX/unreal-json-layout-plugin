@@ -1,0 +1,75 @@
+{
+	"staticMeshes": [
+		{
+			"sceneName": "Sphere",
+			"contentName": "/Engine/BasicShapes/Sphere.Sphere",
+			"matrix":
+			{
+				"xPlane":
+				{
+					"w": 0,
+					"x": 1,
+					"y": 0,
+					"z": 0
+				},
+				"yPlane":
+				{
+					"w": 0,
+					"x": 0,
+					"y": 1,
+					"z": 0
+				},
+				"zPlane":
+				{
+					"w": 0,
+					"x": 0,
+					"y": 0,
+					"z": 1
+				},
+				"wPlane":
+				{
+					"w": 1,
+					"x": 588.1846923828125,
+					"y": 2367.622314453125,
+					"z": 910.7293701171875
+				}
+			}
+		},
+		{
+			"sceneName": "Cube",
+			"contentName": "/Engine/BasicShapes/Cube.Cube",
+			"matrix":
+			{
+				"xPlane":
+				{
+					"w": 0,
+					"x": 1,
+					"y": 0,
+					"z": 0
+				},
+				"yPlane":
+				{
+					"w": 0,
+					"x": 0,
+					"y": 1,
+					"z": 0
+				},
+				"zPlane":
+				{
+					"w": 0,
+					"x": 0,
+					"y": 0,
+					"z": 1
+				},
+				"wPlane":
+				{
+					"w": 1,
+					"x": 364.79522705078125,
+					"y": 2264.69580078125,
+					"z": 765.60308837890625
+				}
+			}
+		}
+	],
+	"animatedStaticMeshes": []
+}

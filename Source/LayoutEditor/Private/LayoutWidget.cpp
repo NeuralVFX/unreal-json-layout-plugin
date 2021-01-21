@@ -285,7 +285,7 @@ FString ULayoutWidget::LoadJsonFile()
 		uint32 SelectionFlag = 1; 
 		DesktopPlatform->OpenFileDialog(ParentWindowPtr,
 			FString("Load Json"),
-			FPaths::ProjectSavedDir() / "LayoutJson",
+			FPaths::ProjectPluginsDir() / "unreal-json-layout-plugin/Saved",
 			FString(""),
 			TEXT("(Layout Files)|*.json;)"),
 			SelectionFlag,
@@ -317,7 +317,7 @@ FString ULayoutWidget::SaveJsonFile()
 		uint32 SelectionFlag = 1;
 		DesktopPlatform->SaveFileDialog(ParentWindowPtr,
 			FString("Save Json"),
-			FPaths::ProjectSavedDir() / "LayoutJson",
+			FPaths::ProjectPluginsDir() / "unreal-json-layout-plugin/Saved",
 			FString(""),
 			TEXT("(Layout Files)|*.json;)"),
 			SelectionFlag,
