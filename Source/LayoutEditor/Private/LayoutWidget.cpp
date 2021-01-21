@@ -172,7 +172,10 @@ void ULayoutWidget::SaveJson()
 	if (ActorArray.Num() > 0)
 	{
 		FString OutFile = SaveJsonFile();
-		UJsonLayout::WriteLayoutData(OutFile, ActorArray, GetSequenceActor());
+		if (!OutFile.IsEmpty())
+		{
+			UJsonLayout::WriteLayoutData(OutFile, ActorArray, GetSequenceActor());
+		}
 	}
 
 

@@ -19,20 +19,21 @@ void UStaticMeshAsset::Init(ALevelSequenceActor* CurrentSequencer, FString NewSc
 
 void UStaticMeshAsset::Load()
 {
-
 	if (!IsLoaded())
 	{
-
-		// Spawn Actor
-		AStaticMeshActor*SpawnedActor = MakeActor();
-
 		// Add to Sequencer
 		ULevelSequence * Sequence = UHelpers::GetSequence(Sequencer);
-		FGuid Guid;
-		Guid = Sequence->MovieScene->AddPossessable(SpawnedActor->GetActorLabel(), SpawnedActor->GetClass());
-		Sequence->BindPossessableObject(Guid, *SpawnedActor, SpawnedActor->GetWorld());
+		if (Sequence)
+		{
+			// Spawn Actor
+			AStaticMeshActor*SpawnedActor = MakeActor();
 
-		// Set actor transform
-		SpawnedActor->SetActorTransform(Transform);
+			FGuid Guid;
+			Guid = Sequence->MovieScene->AddPossessable(SpawnedActor->GetActorLabel(), SpawnedActor->GetClass());
+			Sequence->BindPossessableObject(Guid, *SpawnedActor, SpawnedActor->GetWorld());
+		
+			// Set actor transform
+			SpawnedActor->SetActorTransform(Transform);
+		}
 	}
 }

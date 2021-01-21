@@ -67,47 +67,52 @@ void UHelpers::UpdateSequencer(ALevelSequenceActor* CurrentSequencer)
 	// Try to open sequencer window
 	FAssetEditorManager& AssetEditorManager = FAssetEditorManager::Get();
 	ULevelSequence* Sequence = GetSequence(CurrentSequencer);
-	AssetEditorManager.OpenEditorForAsset(Sequence);
-
-	// Get sequencer window
-	IAssetEditorInstance* AssetEditor = FAssetEditorManager::Get().FindEditorForAsset(Sequence, true);
-	FLevelSequenceEditorToolkit* LevelSequenceEditor = (FLevelSequenceEditorToolkit*)(AssetEditor);
-
-	if (LevelSequenceEditor != nullptr)
+	if (Sequence)
 	{
-		// Force sequencer update
-		ISequencer* Sequencer = LevelSequenceEditor->GetSequencer().Get();
-		Sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::RefreshAllImmediately);
+		AssetEditorManager.OpenEditorForAsset(Sequence);
+
+		// Get sequencer window
+		IAssetEditorInstance* AssetEditor = FAssetEditorManager::Get().FindEditorForAsset(Sequence, true);
+		FLevelSequenceEditorToolkit* LevelSequenceEditor = (FLevelSequenceEditorToolkit*)(AssetEditor);
+
+		if (LevelSequenceEditor != nullptr)
+		{
+			// Force sequencer update
+			ISequencer* Sequencer = LevelSequenceEditor->GetSequencer().Get();
+			Sequencer->NotifyMovieSceneDataChanged(EMovieSceneDataChangeType::RefreshAllImmediately);
+		}
 	}
 }
 
 
 FFrameNumber UHelpers::GetFrameNumberTick(ALevelSequenceActor* CurrentSequencer, int Frame, bool Reverse)
 {
-	ULevelSequence* Sequence = GetSequence(CurrentSequencer);
-
-	// Get both tick resolution and display rate
-	FFrameRate TickResolution = Sequence->MovieScene->GetTickResolution();
-	FFrameRate FrameRate = Sequence->MovieScene->GetDisplayRate();
-
-	// Set time to query
-	FFrameTime Time;
-	Time.FrameNumber = Frame;
 
 	FFrameNumber FrameTick;
 
-	// Calculate conversion
-	if (Reverse)
+	ULevelSequence* Sequence = GetSequence(CurrentSequencer);
+	if (Sequence)
 	{
-		float Seconds = TickResolution.AsSeconds(Time);
-		FrameTick = FrameRate.AsFrameNumber(Seconds);
-	}
-	else
-	{
-		float Seconds = FrameRate.AsSeconds(Time);
-		FrameTick = TickResolution.AsFrameNumber(Seconds);
-	}
+		// Get both tick resolution and display rate
+		FFrameRate TickResolution = Sequence->MovieScene->GetTickResolution();
+		FFrameRate FrameRate = Sequence->MovieScene->GetDisplayRate();
 
+		// Set time to query
+		FFrameTime Time;
+		Time.FrameNumber = Frame;
+
+		// Calculate conversion
+		if (Reverse)
+		{
+			float Seconds = TickResolution.AsSeconds(Time);
+			FrameTick = FrameRate.AsFrameNumber(Seconds);
+		}
+		else
+		{
+			float Seconds = FrameRate.AsSeconds(Time);
+			FrameTick = TickResolution.AsFrameNumber(Seconds);
+		}
+	}
 	return FrameTick;
 }
 
@@ -129,44 +134,51 @@ const void* UHelpers::GetParentWindow()
 
 FGuid UHelpers::GetGuidFromSequencer(ALevelSequenceActor* CurrentSequencer, FString SceneName)
 {
-	// Get all bindings from sequncer
-	ULevelSequence* Sequence = UHelpers::GetSequence(CurrentSequencer);
-	UMovieScene* MovieScene = Sequence->GetMovieScene();
-	const TArray < FMovieSceneBinding > Bindings = MovieScene->GetBindings();
-
 	FGuid Guid;
 
-	// Loop through bindings and find matching name
-	for (FMovieSceneBinding Binding : Bindings)
+	// Check and check that there is a valid sequencer
+	ULevelSequence* Sequence = UHelpers::GetSequence(CurrentSequencer);
+
+	if (Sequence)
 	{
-		FGuid BindingGUID = Binding.GetObjectGuid();
-		FMovieScenePossessable* Possesable = MovieScene->FindPossessable(BindingGUID);
-		if (Possesable && Possesable->GetName() == SceneName)
+		// Get all bindings from sequncer
+		UMovieScene* MovieScene = Sequence->GetMovieScene();
+		const TArray < FMovieSceneBinding > Bindings = MovieScene->GetBindings();
+
+		// Loop through bindings and find matching name
+		for (FMovieSceneBinding Binding : Bindings)
 		{
-			Guid = BindingGUID;
+			FGuid BindingGUID = Binding.GetObjectGuid();
+			FMovieScenePossessable* Possesable = MovieScene->FindPossessable(BindingGUID);
+			if (Possesable && Possesable->GetName() == SceneName)
+			{
+				Guid = BindingGUID;
+			}
 		}
 	}
-
 	return Guid;
 }
 
 
 AActor* UHelpers::GetActorFromSequencer(ALevelSequenceActor* CurrentSequencer, FGuid Guid)
 {
+	AActor* Actor = nullptr;
 
 	// Query object bound with Guid from sequencer
 	ULevelSequence* Sequence = UHelpers::GetSequence(CurrentSequencer);
-	TArray < UObject*, TInlineAllocator < 1 > > BoundObjs;
-	Sequence->LocateBoundObjects(Guid, CurrentSequencer->GetWorld(), BoundObjs);
 
-	AActor* Actor = nullptr;
-
-	// Extract actor
-	if (BoundObjs.Num() > 0)
+	if (Sequence)
 	{
-		TWeakObjectPtr<UObject> firstBoundObjPtr = BoundObjs[0];
-		UObject *firstBoundObj = firstBoundObjPtr.Get();
-		Actor = Cast<AActor>(firstBoundObj);
+		TArray < UObject*, TInlineAllocator < 1 > > BoundObjs;
+		Sequence->LocateBoundObjects(Guid, CurrentSequencer->GetWorld(), BoundObjs);
+
+		// Extract actor
+		if (BoundObjs.Num() > 0)
+		{
+			TWeakObjectPtr<UObject> firstBoundObjPtr = BoundObjs[0];
+			UObject *firstBoundObj = firstBoundObjPtr.Get();
+			Actor = Cast<AActor>(firstBoundObj);
+		}
 	}
 
 	return Actor;
@@ -175,36 +187,38 @@ AActor* UHelpers::GetActorFromSequencer(ALevelSequenceActor* CurrentSequencer, F
 
 UMovieScene3DTransformSection* UHelpers::GetTransformSection(ALevelSequenceActor* CurrentSequencer, FGuid Guid)
 {
-	// Get tracks from sequencer
-	ULevelSequence* Sequence = GetSequence(CurrentSequencer);
-	FMovieSceneBinding* Binding = Sequence->MovieScene->FindBinding(Guid);
-	TArray<UMovieSceneTrack*> Tracks = Binding->GetTracks();
-
 	UMovieScene3DTransformSection* CurrentTranSection = nullptr;
 
-	// Loop through tracks and sections to find 3d transform section
-	for (UMovieSceneTrack* Track : Tracks)
+	// Get tracks from sequencer
+	ULevelSequence* Sequence = GetSequence(CurrentSequencer);
+	if (Sequence)
 	{
-		UMovieScene3DTransformTrack* TranTrack = Cast<UMovieScene3DTransformTrack>(Track);
-		if (TranTrack)
+		FMovieSceneBinding* Binding = Sequence->MovieScene->FindBinding(Guid);
+		TArray<UMovieSceneTrack*> Tracks = Binding->GetTracks();
+
+		// Loop through tracks and sections to find 3d transform section
+		for (UMovieSceneTrack* Track : Tracks)
 		{
-			TArray<UMovieSceneSection*> Sections;
-			Sections = TranTrack->GetAllSections();
-
-			// Loop through sections
-			for (UMovieSceneSection* Section : Sections)
+			UMovieScene3DTransformTrack* TranTrack = Cast<UMovieScene3DTransformTrack>(Track);
+			if (TranTrack)
 			{
-				// Check if transform found and set
-				UMovieScene3DTransformSection* TranSection = Cast<UMovieScene3DTransformSection>(Section);
-				if (Section)
-				{
-					CurrentTranSection = TranSection;
-				}
+				TArray<UMovieSceneSection*> Sections;
+				Sections = TranTrack->GetAllSections();
 
+				// Loop through sections
+				for (UMovieSceneSection* Section : Sections)
+				{
+					// Check if transform found and set
+					UMovieScene3DTransformSection* TranSection = Cast<UMovieScene3DTransformSection>(Section);
+					if (Section)
+					{
+						CurrentTranSection = TranSection;
+					}
+
+				}
 			}
 		}
 	}
-
 	return CurrentTranSection;
 }
 
