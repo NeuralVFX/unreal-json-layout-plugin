@@ -15,10 +15,11 @@ class LAYOUTEDITOR_API UAssetBox : public UHorizontalBox
 public:
 	
 	/** Actual Asset */
+	UPROPERTY()
 	class UAsset* Asset;
 
 	/** Load/Unload CheckBox */
-	class UCheckBox * LoadButton;
+	class UCheckBox* LoadButton;
 	
 	/** Text Blocks */
 	class UTextBlock* ContentNameText;

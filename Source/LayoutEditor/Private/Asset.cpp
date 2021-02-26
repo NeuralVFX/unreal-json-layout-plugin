@@ -31,7 +31,6 @@ void UAsset::Init(ALevelSequenceActor* CurrentSequencer, FString NewSceneName)
 
 	World = Sequencer->GetWorld();
 	Type = "Abstract";
-
 }
 
 

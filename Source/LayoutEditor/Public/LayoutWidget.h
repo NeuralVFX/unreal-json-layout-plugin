@@ -26,26 +26,26 @@ public:
 public:
 
 	/**
-	* Save layout of selected objects as JSON file.
-	*/
+	 * Save layout of selected objects as JSON file.
+	 */
 	UFUNCTION(BlueprintCallable)
 	void SaveJson();
 
 	/**
-	* Load layout from JSON file, brings up window to select JSON file.
-	*/
+	 * Load layout from JSON file, brings up window to select JSON file.
+	 */
 	UFUNCTION(BlueprintCallable)
 	void LoadJson();
 
 	/**
-	* Loop through and load all object in layout, update GUI.
-	*/
+	 * Loop through and load all object in layout, update GUI.
+	 */
 	UFUNCTION(BlueprintCallable)
 	void LoadAll();
 
 	/**
-	* Loop through and unload all object in layout, update GUI.
-	*/
+	 * Loop through and unload all object in layout, update GUI.
+	 */
 	UFUNCTION(BlueprintCallable)
 	void UnLoadAll();
 
@@ -72,6 +72,10 @@ public:
 
 protected:
 
+	/**
+	 * Build Gui
+	 */
 	 virtual void NativePreConstruct() override;
+
 };
 

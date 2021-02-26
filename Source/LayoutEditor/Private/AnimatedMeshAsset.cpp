@@ -36,9 +36,6 @@ void UAnimatedMeshAsset::Load()
 {
 	if (!IsLoaded())
 	{
-
-
-
 		// Add to Sequencer
 		ULevelSequence* Sequence = UHelpers::GetSequence(Sequencer);
 		if (Sequence)

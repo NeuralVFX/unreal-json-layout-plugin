@@ -29,6 +29,7 @@
 #include "ISequencer.h"
 #include "Helpers.h"
 #include "JsonLayout.h"
+#include <Engine/World.h>
 
 
 ULayoutWidget::ULayoutWidget()
@@ -112,7 +113,7 @@ void ULayoutWidget::NativePreConstruct()
 	SaveJsonButton->SetContent(SaveJsonText);
 	LoadJsonButton->SetContent(LoadJsonText);
 
-	// Setup column label arrea
+	// Setup column label array
 	UHorizontalBox* TopBox=  NewObject<UHorizontalBox>();
 
 	USizeBox* Size = NewObject<USizeBox>();
@@ -150,7 +151,7 @@ void ULayoutWidget::NativePreConstruct()
 
 void ULayoutWidget::SaveJson()
 {
-	// Get all secected actors
+	// Get all selected actors
 	TArray<AStaticMeshActor*> ActorArray;
 	USelection* SelectedActors = GEditor->GetSelectedActors();
 
@@ -177,8 +178,6 @@ void ULayoutWidget::SaveJson()
 			UJsonLayout::WriteLayoutData(OutFile, ActorArray, GetSequenceActor());
 		}
 	}
-
-
 }
 
 
@@ -191,6 +190,12 @@ void ULayoutWidget::LoadJson()
 	// Get Sequencer
 	ALevelSequenceActor* CurrentSequencer = GetSequenceActor();
 	
+	// Don't try anything if there is no sequencer
+	if (CurrentSequencer == nullptr)
+	{
+		return;
+	}
+
 	// Open JSON file
 	FString FileName = LoadJsonFile();
 	FStaticMeshArray Objects =  UJsonLayout::ReadLayoutData(FileName);
@@ -207,7 +212,6 @@ void ULayoutWidget::LoadJson()
 		// Create asset
 		UStaticMeshAsset* NewAsset = NewObject<UStaticMeshAsset>();
 		NewAsset->Init(CurrentSequencer, NewSceneName, NewContentName, NewTransform);
-		NewAsset->AddToRoot();
 
 		// Create asset box for GUI
 		UAssetBox* AssetBoxA = NewObject<UAssetBox>();
@@ -217,7 +221,6 @@ void ULayoutWidget::LoadJson()
 		VerticalBox->AddChildToVerticalBox(AssetBoxA);
 		AssetBoxArray.Add(AssetBoxA);
 	}
-
 
 	// Loop through animated StaticMesh array, create asset, add to GUI
 	for (FAnimatedStaticMeshObject Struct : Objects.AnimatedStaticMeshes)
@@ -229,7 +232,6 @@ void ULayoutWidget::LoadJson()
 		// Create asset
 		UAnimatedMeshAsset* NewAsset = NewObject<UAnimatedMeshAsset>();
 		NewAsset->Init(CurrentSequencer, NewSceneName, NewContentName, Struct);
-		NewAsset->AddToRoot();
 
 		// Create asset box for GUI
 		UAssetBox* AssetBoxA = NewObject<UAssetBox>();
@@ -252,7 +254,7 @@ void ULayoutWidget::LoadAll()
 		AssetBoxA->EvaluateState();
 	}
 
-	// Update sequecer GUI
+	// Update sequencer GUI
 	ALevelSequenceActor* CurrentSequencer = GetSequenceActor();
 	UHelpers::UpdateSequencer(CurrentSequencer);
 }
@@ -267,7 +269,7 @@ void ULayoutWidget::UnLoadAll()
 		AssetBoxA->EvaluateState();
 	}
 
-	// Update sequecer GUI
+	// Update sequencer GUI
 	ALevelSequenceActor* CurrentSequencer = GetSequenceActor();
 	UHelpers::UpdateSequencer(CurrentSequencer);
 }
